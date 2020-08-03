@@ -28,7 +28,7 @@ In case you aren't familiar with the game Hangman, the rules are as follows:
 
 Fundamental to the game is the fact the first player accurately represents the word she has chosen. That way, when the other players guess letters, she can reveal whether that letter is in the word. But what happens if the player doesn't do this? This gives the player who chooses the hidden word an enormous advantage. For example, suppose that you're the player trying to guess the word, and at some point you end up revealing letters until you arrive at this point with only one guess remaining:
 
-	DO–BLE
+	DO_BLE
 
 There are only two words in the English language that match this pattern: "doable" and "double." If the player who chose the hidden word is playing fairly, then you have a fifty-fifty chance of winning this game if you guess 'A' or 'U' as the missing letter. However, if your opponent is cheating and hasn't actually committed to either word, then there is no possible way you can win this game. No matter what letter you guess, your opponent can claim that she had picked the other word, and you will lose the game. That is, if you guess that the word is "doable," she can pretend that she committed to "double" the whole time, and vice-versa.
 
@@ -38,28 +38,30 @@ Let's illustrate this technique with an example. Suppose that you are playing Ha
 
 Now, suppose that your opponent guesses the letter 'E.' You now need to tell your opponent which letters in the word you've "picked" are E's. Of course, you haven't picked a word, and so you have multiple options about where you reveal the E's. If you'll notice, every word in your word list falls into one of five "word families:"
 
-- `----`, which contains the word `ALLY`, `COOL`, and `GOOD`.
-- `-E--`, containing `BETA` and `DEAL`.
-- `--E-`, containing `FLEW` and `IBEX`.
-- `E--E`, containing `ELSE`.
-- `---E`, containing `HOPE`.
+- `____`, which contains the word `ALLY`, `COOL`, and `GOOD`.
+- `_E__`, containing `BETA` and `DEAL`.
+- `__E_`, containing `FLEW` and `IBEX`.
+- `E__E`, containing `ELSE`.
+- `___E`, containing `HOPE`.
 
-Since the letters you reveal have to correspond to some word in your word list, you can choose to reveal any one of the above five patterns. There are many ways to pick which pattern to reveal – perhaps you want to steer your opponent toward a smaller family with more obscure words, or toward a larger family in the hopes of keeping your options open. In this assignment, in the interests of simplicity, we'll adopt the latter approach and always choose the largest of the remaining word families. In this case, it means that you should pick the pattern `----`. This reduces your word list down to
+Since the letters you reveal have to correspond to some word in your word list, you can choose to reveal any one of the above five patterns. There are many ways to pick which pattern to reveal – perhaps you want to steer your opponent toward a smaller family with more obscure words, or toward a larger family in the hopes of keeping your options open. In this assignment, in the interests of simplicity, we'll adopt the latter approach and always choose the largest of the remaining word families. In this case, it means that you should pick the pattern `____`. This reduces your word list down to
 
 	ALLY  COOL  GOOD
 
 and since you didn't reveal any letters, you would tell your opponent that her guess was wrong.
 
+Of course there are a lot more words that *do* contain the letter `E`, but these split into more families. The largest family we can pick is the one for the pattern `____`.
+
 Let's see a few more examples of this strategy. Given this three-word word list, if your opponent guesses the letter `O`, then you would break your word list down into two families:
 
-- `-OO-`, containing COOL and GOOD.
-- `----`, containing ALLY.
+- `_OO_`, containing COOL and GOOD.
+- `____`, containing ALLY.
 
-The first of these families is larger than the second, and so you choose the pattern `-OO-`, revealing two O's in the word and reducing your list down to
+The first of these families is larger than the second, and so you choose the pattern `_OO_`, revealing two O's in the word and reducing your list down to
 
 	COOL GOOD
 
-But what happens if your opponent guesses a letter that doesn't appear anywhere in your word list? For example, what happens if your opponent now guesses 'T'? This isn't a problem. If you try splitting these words apart into word families, you'll find that there's only one family --- the one with the pattern `----` in which T appears nowhere and which contains both COOL and GOOD. Since there is only one word family here, it's trivially the largest family, and by picking it you'd maintain the word list you already had.
+But what happens if your opponent guesses a letter that doesn't appear anywhere in your word list? For example, what happens if your opponent now guesses 'T'? This isn't a problem. If you try splitting these words apart into word families, you'll find that there's only one family --- the one with the pattern `_OO_` in which T appears nowhere and which contains both COOL and GOOD. Since there is only one word family here, it's trivially the largest family, and by picking it you'd maintain the word list you already had.
 
 There are two possible outcomes of this game. First, your opponent might be smart enough to pare the word list down to one word and then guess what that word is. In this case, you should congratulate her --- that's an impressive feat considering the scheming you were up to! Second, and by far the most common case, your opponent will be completely stumped and will run out of guesses. When this happens, you can pick any word you'd like from your list and say it's the word that you had chosen all along. The beauty of this setup is that your opponent will have no way of knowing that you were dodging guesses the whole time --- it looks like you simply picked an unusual word and stuck with it the whole way.
 
@@ -87,11 +89,9 @@ Your assignment is to write a computer program which plays a game of Hangman usi
 
 	5. Find the most common "word family" in the remaining words, remove all words from the word list that aren't in that family, and report the position of the letters (if any) to the user. If the word family doesn't contain any copies of the letter, subtract a remaining guess from the user.
 	
-	6. If the player has run out of guesses, pick a word from the word list and display it as the word that the computer initially "chose."
+	6. If the player has run out of guesses, pick any word you want from the remaining word list and display it as the word that the computer initially "chose."
 
 	7. If the player correctly guesses the word, congratulate her.
-
-	   Ask if the user wants to play again and loop or exit accordingly.
 
 Your program will consist of three major parts.
 
@@ -243,7 +243,9 @@ Purely for testing purposes, we would like to implement the `__str__` method, wh
 
 	letters guessed are "aemnid", 201 words remaining, game not won
 
-It's up to you to think about how you want to partition words into word families. Think about what data structures would be best for tracking word families and the master word list. Would an associative array work? How about a stack or queue? Thinking through the design before you start coding will save you a lot of time and headache.
+The biggest part of this assignment by far is the `guess` function: this is where you implement the algorithm that allows your Hangman game to cheat. This is where you have to take the user's guess, use it to partition the remaining word list into families, and then pick the smallest family.
+
+It's up to you to think about how you want to partition words into word families. Think about what data structures would be best for tracking word families and the master word list. Would a dictionary work? How about a stack or queue? Thinking through the design before you start coding will save you a lot of time and headache.
 
 Don't explicitly enumerate all potential new patterns. If you are working with a word of length `n`, then there are `2**n` possible patterns, and thus word families, for each letter. However, most of these families don't actually appear in the English language. For example, no English words contain three consecutive U's, and no word matches the pattern `E-EE-EE--E`. Rather than explicitly generating every pattern whenever the user enters a guess, see if you can generate patterns only for words that actually appear in the word list. One way to do this would be to scan over the word list, storing each word in a table mapping patterns to words in the corresponding family.
 
